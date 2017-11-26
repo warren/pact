@@ -1,11 +1,12 @@
 import React from 'react';
-import { StyleSheet, Text, View, ListView, Alert } from 'react-native';
+import { StyleSheet, Text, View, ListView, Alert, Modal, TextInput} from 'react-native';
 
 import * as firebase from 'firebase';
 const StatusBar = require('./components/StatusBar');
 const ActionButton = require('./components/ActionButton');
 const ListItem = require('./components/ListItem');
 const styles = require('./styles.js');
+
 
 // Initialize Firebase
 const firebaseConfig = {
@@ -22,9 +23,14 @@ export default class App extends React.Component {
         this.state = {
             dataSource: new ListView.DataSource({
                 rowHasChanged: (row1, row2) => row1 !== row2,
-            })
+            }),
+            modalVisible: false,
         };
         this.itemsRef = firebaseApp.database().ref();
+    }
+
+    setModalVisible(visible) {
+        this.setState({modalVisible: visible});
     }
 
     componentDidMount() {
@@ -54,7 +60,39 @@ export default class App extends React.Component {
         return (
             <View style={styles.container}>
                 <StatusBar title="Pact"/>
-                <ActionButton title={"Add"} onPress={this._addItem.bind(this)} />
+                <Modal
+                    animationType="slide"
+                    transparent={false}
+                    visible={this.state.modalVisible}
+                    onRequestClose={() => {alert("Modal has been closed.")}}
+                >
+                    <View style={{marginTop: 22}}>
+                        <View>
+                            <Text>Send text</Text>
+                            <TextInput
+                                {...this.props} // Inherit any props passed to it; e.g., multiline, numberOfLines below
+                                editable = {true}
+                                maxLength = {40}
+                                multiline = {true}
+                                numberOfLines = {4}
+                            />
+
+                            <ActionButton title={"Submit"} onPress={() => {
+                                this.itemsRef.push({ title: "Text from Pact" });
+                                this.setModalVisible(!this.state.modalVisible);
+                            }}>
+                            </ActionButton>
+
+                            <Text></Text>
+                            <ActionButton title={"Cancel"} onPress={() => {
+                                this.setModalVisible(!this.state.modalVisible)
+                            }}>
+                            </ActionButton>
+                        </View>
+                    </View>
+                </Modal>
+                <ListView dataSource={this.state.dataSource} renderRow={this._renderItem.bind(this)} style={styles.listview}/>
+                <ActionButton title={"Check In"} onPress={this._addItem.bind(this)} />
             </View>
         )
     }
@@ -64,20 +102,23 @@ export default class App extends React.Component {
             'Pact',
             "You'd like to record some data...",
             [
-                {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
-                {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-                {text: 'OK', onPress: () => this.itemsRef.push({ title: "Hello from Pact!" })},
+                {text: 'Text', onPress: () => this.setModalVisible(!this.state.modalVisible)},
+                {text: 'Picture', onPress: () => this.itemsRef.push({ title: "Picture from Pact" })},
             ],
-            { cancelable: false }
+            { cancelable: true }
         )
     }
 
     _renderItem(item) {
         return(
-            <ListItem item={"item"} onPress={() => {}}/>
+            <ListItem item={item} onPress= {() => {}}/>
         );
     }
+
 }
+
+
+
 
 
 
