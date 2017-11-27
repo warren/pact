@@ -25,6 +25,7 @@ export default class App extends React.Component {
                 rowHasChanged: (row1, row2) => row1 !== row2,
             }),
             modalVisible: false,
+            textToSend: '',
         };
         this.itemsRef = firebaseApp.database().ref();
     }
@@ -70,6 +71,8 @@ export default class App extends React.Component {
                         <View>
                             <Text>Send text</Text>
                             <TextInput
+                                placeholder={"it is monday my dudes"}
+                                onChangeText={(text) => this.setState({textToSend:text})}
                                 {...this.props} // Inherit any props passed to it; e.g., multiline, numberOfLines below
                                 editable = {true}
                                 maxLength = {40}
@@ -78,7 +81,7 @@ export default class App extends React.Component {
                             />
 
                             <ActionButton title={"Submit"} onPress={() => {
-                                this.itemsRef.push({ title: "Text from Pact" });
+                                this.itemsRef.push({ title: this.state.textToSend });
                                 this.setModalVisible(!this.state.modalVisible);
                             }}>
                             </ActionButton>
@@ -114,7 +117,6 @@ export default class App extends React.Component {
             <ListItem item={item} onPress= {() => {}}/>
         );
     }
-
 }
 
 
