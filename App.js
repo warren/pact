@@ -62,12 +62,12 @@ export default class App extends React.Component {
             snap.forEach((child) => {
                 items.push({
                     title: child.val().title,
-                    userDisplayName: child.val().userDisplayName,
-                    userID: child.val().userID,
+                    authorDisplayName: child.val().authorDisplayName,
+                    authorID: child.val().authorID,
                     postApproved: child.val().postApproved,
                     _key: child.key,
 
-                    selfID: this.state.userID,
+                    userID: this.state.userID,
                     pairID: this.state.pairID /* Not very efficient. I am doing this to pass the user's ID and the user's pair's ID info to ListItem so I can render posts accordingly */
                 });
             });
@@ -105,8 +105,8 @@ export default class App extends React.Component {
 
                         <ActionButton title={"Submit"} onPress={() => {
                             this.itemsRef.push({ title: this.state.textToSend,
-                                userDisplayName: this.state.userDisplayName,
-                                userID: this.state.userID
+                                authorDisplayName: this.state.userDisplayName,
+                                authorID: this.state.userID
                             });
                             this.setTextModalVisible(!this.state.textModalVisible);
                         }}>
@@ -126,8 +126,6 @@ export default class App extends React.Component {
                     onRequestClose={() => { this.setCameraModalVisible(!this.state.cameraModalVisible) }}
                 >
                     <View style={{flex: 1}}>
-                        {/*<Text>Picture modal. Camera permission: {this.state.hasCameraPermission}</Text>*/}
-
                         <Camera style={{flex: 1}} type={this.state.type}>
                             <View
                                 style={{
@@ -157,15 +155,15 @@ export default class App extends React.Component {
                         <ActionButton title={"Send"} onPress={() => {
                             this.setCameraModalVisible(!this.state.cameraModalVisible);
                             this.itemsRef.push({ title: '',
-                                userDisplayName: this.state.userDisplayName,
-                                userID: this.state.userID,
+                                authorDisplayName: this.state.userDisplayName,
+                                authorID: this.state.userID,
                                 postApproved: false,
                             });
                         }}>
                         </ActionButton>
                     </View>
                 </Modal>
-                <ListView dataSource={this.state.dataSource} renderRow={this._renderItem.bind(this)} style={styles.listview}/>
+                <ListView dataSource={this.state.dataSource} renderRow={this._renderItem.bind(this)} style={styles.listview} enableEmptySections={true}/>
                 <ActionButton title={"Check In"} onPress={this._addItem.bind(this)} />
             </View>
         )
