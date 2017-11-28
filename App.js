@@ -31,7 +31,8 @@ export default class App extends React.Component {
             hasCameraPermission: null,
             type: Camera.Constants.Type.back,
             userDisplayName: 'Warren',
-            userID: '111'
+            userID: '111',
+            pairID: '222'
         };
         this.itemsRef = firebaseApp.database().ref();
     }
@@ -64,7 +65,10 @@ export default class App extends React.Component {
                     userDisplayName: child.val().userDisplayName,
                     userID: child.val().userID,
                     postApproved: child.val().postApproved,
-                    _key: child.key
+                    _key: child.key,
+
+                    selfID: this.state.userID,
+                    pairID: this.state.pairID /* Not very efficient. I am doing this to pass the user's ID and the user's pair's ID info to ListItem so I can render posts accordingly */
                 });
             });
 
