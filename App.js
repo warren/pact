@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, ListView, Alert, Modal, TextInput, TouchableOpacity, Dimensions } from 'react-native';
+import { StyleSheet, Text, View, ListView, Alert, Modal, TextInput, TouchableOpacity } from 'react-native';
 
 import * as firebase from 'firebase';
 const StatusBar = require('./components/StatusBar');

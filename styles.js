@@ -28,6 +28,10 @@ var styles = StyleSheet.create({
         color: '#333',
         fontSize: 16,
     },
+    liTextNotApproved: {
+        color: '#971111',
+        fontSize: 16,
+    },
     navbar: {
         alignItems: 'center',
         backgroundColor: '#fff',
