@@ -30,6 +30,8 @@ export default class App extends React.Component {
             textToSend: '',
             hasCameraPermission: null,
             type: Camera.Constants.Type.back,
+            userDisplayName: 'Warren',
+            userID: '111'
         };
         this.itemsRef = firebaseApp.database().ref();
     }
@@ -59,6 +61,9 @@ export default class App extends React.Component {
             snap.forEach((child) => {
                 items.push({
                     title: child.val().title,
+                    userDisplayName: child.val().userDisplayName,
+                    userID: child.val().userID,
+                    postApproved: child.val().postApproved,
                     _key: child.key
                 });
             });
@@ -95,7 +100,10 @@ export default class App extends React.Component {
                         />
 
                         <ActionButton title={"Submit"} onPress={() => {
-                            this.itemsRef.push({ title: this.state.textToSend });
+                            this.itemsRef.push({ title: this.state.textToSend,
+                                userDisplayName: this.state.userDisplayName,
+                                userID: this.state.userID
+                            });
                             this.setTextModalVisible(!this.state.textModalVisible);
                         }}>
                         </ActionButton>
@@ -142,8 +150,13 @@ export default class App extends React.Component {
                             </View>
                         </Camera>
 
-                        <ActionButton title={"Cancel"} onPress={() => {
-                            this.setCameraModalVisible(!this.state.cameraModalVisible)
+                        <ActionButton title={"Send"} onPress={() => {
+                            this.setCameraModalVisible(!this.state.cameraModalVisible);
+                            this.itemsRef.push({ title: '',
+                                userDisplayName: this.state.userDisplayName,
+                                userID: this.state.userID,
+                                postApproved: false,
+                            });
                         }}>
                         </ActionButton>
                     </View>
