@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, ListView, Alert, Modal, TextInput, TouchableOpacity} from 'react-native';
+import { StyleSheet, Text, View, ListView, Alert, Modal, TextInput, TouchableOpacity, Dimensions } from 'react-native';
 
 import * as firebase from 'firebase';
 const StatusBar = require('./components/StatusBar');
@@ -78,80 +78,74 @@ export default class App extends React.Component {
                     animationType="slide"
                     transparent={false}
                     visible={this.state.textModalVisible}
-                    onRequestClose={() => {alert("Modal has been closed.")}}
+                    onRequestClose={() => { this.setTextModalVisible(!this.state.textModalVisible) }}
                 >
                     <View style={{marginTop: 22}}>
-                        <View>
-                            <Text>Send text</Text>
-                            <TextInput
-                                placeholder = {"Write a message to send to your pair"}
-                                autoFocus = {true}
-                                autoCapitalize = {"sentences"}
-                                onChangeText = {(text) => this.setState({textToSend: text})}
-                                {...this.props} // Inherit any props passed to it; e.g., multiline, numberOfLines below
-                                editable = {true}
-                                maxLength = {40}
-                                multiline = {true}
-                                numberOfLines = {4}
-                            />
+                        <Text>Send text</Text>
+                        <TextInput
+                            placeholder = {"Write a message to send to your pair"}
+                            autoFocus = {true}
+                            autoCapitalize = {"sentences"}
+                            onChangeText = {(text) => this.setState({textToSend: text})}
+                            {...this.props} // Inherit any props passed to it; e.g., multiline, numberOfLines below
+                            editable = {true}
+                            maxLength = {40}
+                            multiline = {true}
+                            numberOfLines = {4}
+                        />
 
-                            <ActionButton title={"Submit"} onPress={() => {
-                                this.itemsRef.push({ title: this.state.textToSend });
-                                this.setTextModalVisible(!this.state.textModalVisible);
-                            }}>
-                            </ActionButton>
+                        <ActionButton title={"Submit"} onPress={() => {
+                            this.itemsRef.push({ title: this.state.textToSend });
+                            this.setTextModalVisible(!this.state.textModalVisible);
+                        }}>
+                        </ActionButton>
 
-                            <Text></Text>
-                            <ActionButton title={"Cancel"} onPress={() => {
-                                this.setTextModalVisible(!this.state.textModalVisible)
-                            }}>
-                            </ActionButton>
-                        </View>
+                        <Text></Text>
+                        <ActionButton title={"Cancel"} onPress={() => {
+                            this.setTextModalVisible(!this.state.textModalVisible)
+                        }}>
+                        </ActionButton>
                     </View>
                 </Modal>
                 <Modal
                     animationType="slide"
                     transparent={false}
                     visible={this.state.cameraModalVisible}
-                    onRequestClose={() => {alert("Modal has been closed.")}}
+                    onRequestClose={() => { this.setCameraModalVisible(!this.state.cameraModalVisible) }}
                 >
-                    <View style={{marginTop: 22}}>
-                        <View>
-                            <Text>Picture modal. Camera permission: {this.state.hasCameraPermission}</Text>
+                    <View style={{flex: 1}}>
+                        {/*<Text>Picture modal. Camera permission: {this.state.hasCameraPermission}</Text>*/}
 
-                            <Camera type={this.state.type}>
-                                <View
+                        <Camera style={{flex: 1}} type={this.state.type}>
+                            <View
+                                style={{
+                                    backgroundColor: 'transparent',
+                                    flexDirection: 'row',
+                                }}>
+                                <TouchableOpacity
                                     style={{
-                                        backgroundColor: 'transparent',
-                                        flexDirection: 'row',
+                                        alignSelf: 'flex-end',
+                                        alignItems: 'center',
+                                    }}
+                                    onPress={() => {
+                                        this.setState({
+                                            type: this.state.type === Camera.Constants.Type.back
+                                                ? Camera.Constants.Type.front
+                                                : Camera.Constants.Type.back,
+                                        });
                                     }}>
-                                    <TouchableOpacity
-                                        style={{
-                                            alignSelf: 'flex-end',
-                                            alignItems: 'center',
-                                        }}
-                                        onPress={() => {
-                                            this.setState({
-                                                type: this.state.type === Camera.Constants.Type.back
-                                                    ? Camera.Constants.Type.front
-                                                    : Camera.Constants.Type.back,
-                                            });
-                                        }}>
-                                        <Text
-                                            style={{ fontSize: 18, marginBottom: 10, color: 'white' }}>
-                                            {' '}Flip{' '}
-                                        </Text>
-                                    </TouchableOpacity>
-                                </View>
-                            </Camera>
+                                    <Text
+                                        style={{ fontSize: 20, fontWeight: 'bold', marginTop: 10, color: 'white' }}>
+                                        {' '}Flip Camera{' '}
+                                    </Text>
+                                </TouchableOpacity>
+                            </View>
+                        </Camera>
 
-
-                            <Text></Text>
-                            <ActionButton title={"Cancel"} onPress={() => {
-                                this.setCameraModalVisible(!this.state.cameraModalVisible)
-                            }}>
-                            </ActionButton>
-                        </View>
+                        <ActionButton title={"Cancel"} onPress={() => {
+                            this.setCameraModalVisible(!this.state.cameraModalVisible)
+                        }}>
+                        </ActionButton>
                     </View>
                 </Modal>
                 <ListView dataSource={this.state.dataSource} renderRow={this._renderItem.bind(this)} style={styles.listview}/>
