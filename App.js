@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, ListView, Alert, Modal, TextInput, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, ListView, Alert, Modal, TextInput, TouchableOpacity, Button } from 'react-native';
 
 import * as firebase from 'firebase';
 const StatusBar = require('./components/StatusBar');
@@ -8,6 +8,8 @@ const ListItem = require('./components/ListItem');
 const styles = require('./styles.js');
 
 import { Camera, Permissions } from 'expo';
+
+import { TabNavigator } from 'react-navigation';
 
 // Initialize Firebase
 const firebaseConfig = {
@@ -18,7 +20,8 @@ const firebaseConfig = {
     };
 const firebaseApp = firebase.initializeApp(firebaseConfig);
 
-export default class App extends React.Component {
+
+class HomeScreen extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -36,6 +39,10 @@ export default class App extends React.Component {
         };
         this.itemsRef = firebaseApp.database().ref();
     }
+
+    static navigationOptions = {
+        title: 'Welcome',
+    };
 
     setTextModalVisible(visible) {
         this.setState({textModalVisible: visible});
@@ -80,8 +87,15 @@ export default class App extends React.Component {
     }
 
     render() {
+        const { navigate } = this.props.navigation;
         return (
             <View style={styles.container}>
+                <Button
+                    title="Go to Jane's profile"
+                    onPress={() =>
+                        {}
+                    }
+                />
                 <StatusBar title="Pact"/>
                 <Modal
                     animationType="slide"
@@ -187,6 +201,12 @@ export default class App extends React.Component {
         );
     }
 }
+
+const App = TabNavigator({
+    Home: { screen: HomeScreen },
+});
+
+export default App;
 
 
 
