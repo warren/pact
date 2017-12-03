@@ -9,7 +9,13 @@ class ListItem extends Component {
             this.props.item.authorID !== this.props.item.userID &&
             this.props.item.authorID !== '-1') /* ID of -1 is a system message, and is always shown */
         {
-            return null; /* Do nothing */
+            return(
+                <TouchableHighlight onPress={this.props.onPress}>
+                    <View style={styles.li}>
+                        <Text style={styles.liText}>Someone else posted</Text>
+                    </View>
+                </TouchableHighlight>
+            ); /* Do nothing */
         }
 
         else {
