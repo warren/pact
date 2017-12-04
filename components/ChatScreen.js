@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, ListView, Alert, Modal, TextInput, TouchableOpacity } from 'react-native';
+import { Text, View, ListView, Alert, Modal, TextInput, TouchableOpacity } from 'react-native';
 
 import * as firebase from 'firebase';
 const StatusBar = require('./StatusBar');
@@ -191,9 +191,16 @@ class ChatScreen extends React.Component {
 
     _renderItem(item) {
         console.log(item); // TODO: Move the "if should render" logic out of ListItem.render() and into here
-        return(
-            <ListItem item={item} onPress= {() => {}}/>
-        );
+        if (item.authorID !== item.pairID &&
+            item.authorID !== item.userID &&
+            item.authorID !== '-1') /* ID of -1 is a system message, and is always shown */
+        {
+            return null;
+        } else {
+            return(
+                <ListItem item={item} onPress= {() => {}}/>
+            );
+        }
     }
 }
 
