@@ -2,7 +2,7 @@ import React from 'react';
 import { Text, View, ListView, Alert, Modal, TextInput, TouchableOpacity } from 'react-native';
 
 import * as firebase from 'firebase';
-const StatusBar = require('./StatusBar');
+const StatusBarCustom = require('./StatusBarCustom');
 const ActionButton = require('./ActionButton');
 const ListItem = require('./ListItem');
 const styles = require('../styles.js');
@@ -82,7 +82,6 @@ class ChatScreen extends React.Component {
             this.setState({
                 dataSource: this.state.dataSource.cloneWithRows(items)
             });
-
         });
     }
 
@@ -90,7 +89,7 @@ class ChatScreen extends React.Component {
         const { navigate } = this.props.navigation;
         return (
             <View style={styles.container}>
-                <StatusBar title="Pact"/>
+                <StatusBarCustom title="Pact"/>
                 <Modal
                     animationType="slide"
                     transparent={false}

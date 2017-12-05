@@ -4,11 +4,11 @@ import ReactNative from 'react-native';
 const styles = require('../styles.js')
 const { StyleSheet, Text, View} = ReactNative;
 
-class StatusBar extends Component {
+class StatusBarCustom extends Component {
     render() {
         return (
             <View>
-                <View style={styles.statusbar}/>
+                <View style={styles.statusBarCustom}/>
                 <View style={styles.navbar}>
                     <Text style={styles.navbarTitle}>{this.props.title}</Text>
                 </View>
@@ -17,4 +17,4 @@ class StatusBar extends Component {
     }
 }
 
-module.exports = StatusBar;
+module.exports = StatusBarCustom;
