@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { View, Text } from 'react-native';
+import { CalendarList } from 'react-native-calendars';
 
 class CalendarScreen extends React.Component {
     static navigationOptions = {
@@ -10,7 +11,11 @@ class CalendarScreen extends React.Component {
     render() {
         return(
             <View>
-                <Text>bonjour mon ami</Text>
+                <CalendarList
+                    scrollEnabled={true}
+                    pastScrollRange={36}
+                    futureScrollRange={36}
+                ></CalendarList>
             </View>
         );
     }

@@ -17,7 +17,7 @@ const App = TabNavigator({
     headerMode: 'none',
     tabBarOptions: {
         style: {
-            paddingTop: Platform.OS === 'ios' ? 0 : StatusBar.currentHeight
+            paddingTop: Platform.OS === 'ios' ? 0 : StatusBar.currentHeight // If not on iOS, create padding to prevent clipping
         }
     }},
 );

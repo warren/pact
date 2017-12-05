@@ -2,7 +2,6 @@ import React from 'react';
 import { Text, View, ListView, Alert, Modal, TextInput, TouchableOpacity } from 'react-native';
 
 import * as firebase from 'firebase';
-const StatusBarCustom = require('./StatusBarCustom');
 const ActionButton = require('./ActionButton');
 const ListItem = require('./ListItem');
 const styles = require('../styles.js');
@@ -63,7 +62,6 @@ class ChatScreen extends React.Component {
 
     listenForItems(itemsRef) {
         itemsRef.on('value', (snap) => {
-
             // get children as an array
             var items = [];
             snap.forEach((child) => {
@@ -89,7 +87,6 @@ class ChatScreen extends React.Component {
         const { navigate } = this.props.navigation;
         return (
             <View style={styles.container}>
-                <StatusBarCustom title="Pact"/>
                 <Modal
                     animationType="slide"
                     transparent={false}
