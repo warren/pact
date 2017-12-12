@@ -108,10 +108,24 @@ class ChatScreen extends React.Component {
                         />
 
                         <ActionButton title={"Submit"} onPress={() => {
-                            this.itemsRef.push({ title: this.state.textToSend,
-                                authorDisplayName: this.state.userDisplayName,
-                                authorID: this.state.userID
-                            });
+                            let key = this.itemsRef.push().getKey();
+
+                            let messageDetailsDict = {};
+                            messageDetailsDict['title'] = 'Hello';
+                            messageDetailsDict['isApproved'] = false;
+
+                            let messageDict = {};
+                            messageDict[key] = messageDetailsDict;
+
+                            let dbDict = {};
+                            dbDict['authorDisplayName'] = 'Warren';
+                            dbDict['authorID'] = '111';
+                            dbDict['longestStreak'] = '5';
+                            dbDict['currentStreak'] = '2';
+                            dbDict['notificationSchedule'] = "[’08:00’, null, null, ’14:00’, null, null, ’20:00’]";
+                            dbDict['messages'] = messageDict;
+
+                            this.itemsRef.push().set(dbDict);
                             this.setTextModalVisible(!this.state.textModalVisible);
                         }}>
                         </ActionButton>
