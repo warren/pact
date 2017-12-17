@@ -39,7 +39,9 @@ class ChatScreen extends React.Component {
             userDisplayName: 'Warren',
             pairDisplayName: 'Jordan', // TODO: This is currently hardcoded
             userID: '111',
-            pairID: '222'
+            pairID: '222',
+
+            messagesRef: '', // This should be overwritten always.
         };
         this.itemsRef = firebaseApp.database().ref();
     }
@@ -56,7 +58,7 @@ class ChatScreen extends React.Component {
     }
 
     createNewUser() {
-
+        var vimportant;
         // TODO: If demomode: use hardcoded values
         //userSetupDict['notificationSchedule'] = "[’08:00’, null, null, ’14:00’, null, null, ’20:00’]";
 
@@ -67,22 +69,26 @@ class ChatScreen extends React.Component {
         userSetupDict['currentStreak'] = '0';
         userSetupDict['notificationSchedule'] = "[null, null, null, null, null, null, null]";
 
-        this.userID = userSetupDict['userID'];
-        this.userDisplayName = userSetupDict['userDisplayName'];
+        this.state.userID = userSetupDict['userID'];
+        this.state.userDisplayName = userSetupDict['userDisplayName'];
 
         // TODO: Set the conversation key as a state variable so it can be used later
 
         // Search conversations ref for a conversation that isn't full
         let potentialConversationKey = null;
-        firebaseApp.database().ref('conversations/').orderByChild('conversationMemberCount').equalTo(1).on("value", function(snapshot) {
+        let temp = firebaseApp.database().ref('conversations/').orderByChild('conversationMemberCount').equalTo(1).on("value", function(snapshot) {
             snapshot.forEach(function(data) {
                 console.log(data.key);
                 potentialConversationKey = data.key;
             });
         });
+        temp.off;
 
         if(potentialConversationKey !== null) { // If a conversation was found
             userSetupDict['userConversationKey'] = potentialConversationKey; // Add the new user to that conversation
+            this.state.localConversationKey = potentialConversationKey; // Save for later use
+            //this.state.messagesRef = firebaseApp.database().ref('conversations/' + potentialConversationKey + '/messages/');
+            //vimportant = firebaseApp.database().ref('conversations/' + potentialConversationKey + '/messages');
             firebaseApp.database().ref('conversations/').child(potentialConversationKey).child('conversationMemberCount').set(2); // Set the conversation member count to 2 members
 
         } else { // Otherwise create a new conversation to add the new user to
@@ -92,7 +98,7 @@ class ChatScreen extends React.Component {
                 potentialConversationID = String(this.getRandomInt(0, 1000000000000));
                 IDTaken = false;
 
-                firebaseApp.database().ref('conversations/').orderByChild('conversationID').equalTo(potentialConversationID).on("value", function (snapshot) {
+                let temp = firebaseApp.database().ref('conversations/').orderByChild('conversationID').equalTo(potentialConversationID).on("value", function (snapshot) {
                     snapshot.forEach(function (data) {
                         console.log('Conversation ID is already in use.');
                         if(data.key !== null) {
@@ -102,44 +108,52 @@ class ChatScreen extends React.Component {
                 });
             } while(IDTaken === true);
 
-            let messageSetupDict = {};
-            messageSetupDict['content'] = 'Welcome to Pact! To get the conversation started: Where are you from? What goal have you set for yourself and why?';
-            messageSetupDict['authorDisplayName'] = 'System';
-
             let conversationSetupDict = {};
             conversationSetupDict['conversationID'] = potentialConversationID;
             conversationSetupDict['conversationMemberCount'] = 0;
-            conversationSetupDict['messages'] = messageSetupDict;
 
             // Write the new conversation object to Firebase
             firebaseApp.database().ref('conversations/').push().set(conversationSetupDict);
 
             // Again, search conversations ref for a conversation that isn't full. We expect to find our newly created conversation here
             potentialConversationKey = null;
-            firebaseApp.database().ref('conversations/').orderByChild('conversationMemberCount').equalTo(0).on("value", function(snapshot) {
+            let temp2 = firebaseApp.database().ref('conversations/').orderByChild('conversationMemberCount').equalTo(0).on("value", function(snapshot) {
                 snapshot.forEach(function(data) {
                     console.log(data.key);
                     potentialConversationKey = data.key;
                 });
             });
+            temp2.off;
 
             if(potentialConversationKey !== null) { // If a conversation was found
                 userSetupDict['userConversationKey'] = potentialConversationKey; // Add the new user to that conversation
+                this.state.localConversationKey = potentialConversationKey; // Save for later use
+                //this.state.messagesRef = firebaseApp.database().ref('conversations/' + potentialConversationKey + '/messages/');
+                //vimportant = firebaseApp.database().ref('conversations/' + potentialConversationKey + '/messages');
                 firebaseApp.database().ref('conversations/').child(potentialConversationKey).child('conversationMemberCount').set(1); // Set the conversation member count to 1 member
             } else {
-                // Otherwise, an unlikely event has happened and the app should exit. What happened is probably that the user
-                // lost connection after creating the new conversation, another new user joined the conversation, and the original
-                // new user reconnects to find no conversation to join.
+                // Otherwise, a VERY unlikely event has happened and the app should exit. What happened is probably that the user
+                // lost connection after creating the new conversation, another new user who had previously lost connection reconnected
+                // and joined the conversation, and then the original new user reconnects to find no conversation to join.
+                // TODO: Determine whether this is problem could actually happen and if it could, fix it
                 Alert.alert(
                     'Fatal error',
                     "An unlikely fatal error has occurred. Please restart the app."
                 );
             }
+
+            // Add welcome message to new conversation
+            firebaseApp.database().ref('conversations/' + potentialConversationKey + '/messages/').push().set({
+                content: 'Welcome to Pact! To get the conversation started: Where are you from? What goal have you set for yourself and why?',
+                authorDisplayName: 'System',
+            });
         }
+
 
         firebaseApp.database().ref('users/').push().set(userSetupDict);
 
         console.log("Finished setting up new user!");
+        //this.listenForItems(this.itemsRef);
         return;
     }
 
@@ -165,23 +179,35 @@ class ChatScreen extends React.Component {
     }
 
     componentDidMount() {
+        //this.listenForItems(firebaseApp.database().ref('conversations/'));
         this.listenForItems(this.itemsRef);
     }
 
     listenForItems(itemsRef) {
+        // Search conversations ref for a conversation that isn't full
+        // let potentialConversationKey = null;
+        // firebaseApp.database().ref('conversations/').orderByChild('conversationMemberCount').equalTo(1).on("value", function(snapshot) {
+        //     snapshot.forEach(function(data) {
+        //         console.log(data.key);
+        //         potentialConversationKey = data.key;
+        //     });
+        // });
+
+        //firebaseApp.database().ref('conversations/' + this.state.localConversationKey + '/messages/').on('value', (snap) => {
+
         itemsRef.on('value', (snap) => {
             // get children as an array
             var items = [];
-            snap.forEach((child) => {
+            snap.child('conversations').child(this.state.localConversationKey).child('messages').forEach((child) => {
                 items.push({
-                    title: child.val().title,
+                    content: child.val().content,
                     authorDisplayName: child.val().authorDisplayName,
                     authorID: child.val().authorID,
-                    postApproved: child.val().postApproved,
+                    pictureApproved: child.val().pictureApproved,
                     _key: child.key,
 
-                    userID: this.state.userID,
-                    pairID: this.state.pairID /* Not very efficient. I am doing this to pass the user's ID and the user's pair's ID info to ListItem so I can render posts accordingly */
+                    userDisplayName: this.state.userDisplayName,
+                    localConversationKey: this.state.localConversationKey, // Not very efficient. I am doing this to pass the user's ID and the user's pair's ID info to ListItem so I can render posts accordingly
                 });
             });
 
@@ -328,20 +354,19 @@ class ChatScreen extends React.Component {
                         />
 
                         <ActionButton title={"Submit"} onPress={() => {
-                            // Retrieves parent key for the conversation entry we want
-                            let conversationKey = "";
-                            firebaseApp.database().ref('conversations/').orderByChild('conversationID').equalTo('hello').on("value", function(snapshot) {
-                                snapshot.forEach(function(data) {
-                                    console.log(data.key);
-                                    conversationKey += data.key; // This action should only occur once because there are no other conversations with the given conversationID
-                                });
-                            });
+                            // Retrieves parent key for the conversation entry we want... I believe this is no longer necessary because it is stored in this.state.localConversationKey
+                            // let conversationKey = "";
+                            // firebaseApp.database().ref('conversations/').orderByChild('conversationID').equalTo('hello').on("value", function(snapshot) {
+                            //     snapshot.forEach(function(data) {
+                            //         console.log(data.key);
+                            //         conversationKey += data.key; // This action should only occur once because there are no other conversations with the given conversationID
+                            //     });
+                            // });
 
-                            // Appends a new message to the conversation we are interested in
-                            firebaseApp.database().ref('conversations/' + conversationKey + '/messages/').push().set({
-                                title: this.state.textToSend,
-                                isApproved: false,
-                                // TODO: NEED TO HAVE USER DISPLAY NAME HERE
+                            // Appends a new message to the conversation the user is in
+                            firebaseApp.database().ref('conversations/' + this.state.localConversationKey + '/messages/').push().set({
+                                content: this.state.textToSend,
+                                authorDisplayName: this.state.userDisplayName,
                             });
 
                             this.setTextModalVisible(!this.state.textModalVisible);
@@ -389,12 +414,14 @@ class ChatScreen extends React.Component {
                         </Camera>
 
                         <ActionButton title={"Send"} onPress={() => {
-                            this.setCameraModalVisible(!this.state.cameraModalVisible);
-                            this.itemsRef.push({ title: '',
+                            // Appends a new message to the conversation the user is in
+                            firebaseApp.database().ref('conversations/' + this.state.localConversationKey + '/messages/').push().set({
+                                content: 'Placeholder for picture direct link',
+                                pictureApproved: false,
                                 authorDisplayName: this.state.userDisplayName,
-                                authorID: this.state.userID,
-                                postApproved: false,
                             });
+
+                            this.setCameraModalVisible(!this.state.cameraModalVisible);
                         }}>
                         </ActionButton>
                     </View>
@@ -419,16 +446,16 @@ class ChatScreen extends React.Component {
 
     _renderItem(item) {
         console.log(item); // TODO: Move the "if should render" logic out of ListItem.render() and into here
-        if (item.authorID !== item.pairID &&
-            item.authorID !== item.userID &&
-            item.authorID !== '-1') /* ID of -1 is a system message, and is always shown */
-        {
-            return null;
-        } else {
+        // if (item.authorID !== item.pairID &&
+        //     item.authorID !== item.userID &&
+        //     item.authorID !== '-1') /* ID of -1 is a system message, and is always shown */
+        // {
+        //     return null;
+        // } else {
             return(
                 <ListItem item={item} onPress= {() => {}}/>
             );
-        }
+        // }
     }
 }
 
