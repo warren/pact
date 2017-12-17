@@ -108,24 +108,33 @@ class ChatScreen extends React.Component {
                         />
 
                         <ActionButton title={"Submit"} onPress={() => {
-                            let key = this.itemsRef.push().getKey();
+                            // let dbDict = {};
+                            // dbDict['userDisplayName'] = 'Warren';
+                            // dbDict['userID'] = '111';
+                            // dbDict['longestStreak'] = '5';
+                            // dbDict['currentStreak'] = '2';
+                            // dbDict['notificationSchedule'] = "[’08:00’, null, null, ’14:00’, null, null, ’20:00’]";
+                            // dbDict['userConversationKey'] = 'hello';
 
-                            let messageDetailsDict = {};
-                            messageDetailsDict['title'] = 'Hello';
-                            messageDetailsDict['isApproved'] = false;
+                            //this.itemsRef.push().set(dbDict);
+                            
 
-                            let messageDict = {};
-                            messageDict[key] = messageDetailsDict;
+                            // Gets the parent key for the conversation entry we want
+                            let conversationKey = "";
+                            firebaseApp.database().ref('conversations/').orderByChild('conversationID').equalTo('hello').on("value", function(snapshot) {
+                                //console.log(snapshot.val());
+                                snapshot.forEach(function(data) {
+                                    console.log(data.key);
+                                    conversationKey += data.key; // This action should only occur once because there are no other conversations with the given conversationID
+                                });
+                            });
 
-                            let dbDict = {};
-                            dbDict['authorDisplayName'] = 'Warren';
-                            dbDict['authorID'] = '111';
-                            dbDict['longestStreak'] = '5';
-                            dbDict['currentStreak'] = '2';
-                            dbDict['notificationSchedule'] = "[’08:00’, null, null, ’14:00’, null, null, ’20:00’]";
-                            dbDict['messages'] = messageDict;
+                            // Appends a new message to the conversation we are interested in
+                            firebaseApp.database().ref('conversations/' + conversationKey + '/messages/').push().set({
+                                title: "message content",
+                                isApproved: false});
 
-                            this.itemsRef.push().set(dbDict);
+
                             this.setTextModalVisible(!this.state.textModalVisible);
                         }}>
                         </ActionButton>
