@@ -1,5 +1,7 @@
 import React from 'react';
-import { Text, View, ListView, Alert, Modal, TextInput, TouchableOpacity } from 'react-native';
+import { Text, View, ListView, Alert, Modal, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
+
+import AppIntroSlider from 'react-native-app-intro-slider';
 
 import * as firebase from 'firebase';
 const ActionButton = require('./ActionButton');
@@ -25,6 +27,8 @@ class ChatScreen extends React.Component {
             dataSource: new ListView.DataSource({
                 rowHasChanged: (row1, row2) => row1 !== row2,
             }),
+            introModalVisible: true,
+            initialRoutineModalVisible: true,
             textModalVisible: false,
             cameraModalVisible: false,
             textToSend: '',
@@ -42,6 +46,14 @@ class ChatScreen extends React.Component {
         title: 'Not sure what this corresponds to',
         tabBarLabel: 'Jordan', // TODO: This is currently hardcoded; cannot get from this.state because it's not bound
     };
+
+    hideIntroModal() {
+        this.setState({introModalVisible: false});
+    }
+
+    hideInitialRoutineModal() {
+        this.setState({initialRoutineModalVisible: false});
+    }
 
     setTextModalVisible(visible) {
         this.setState({textModalVisible: visible});
@@ -85,8 +97,121 @@ class ChatScreen extends React.Component {
 
     render() {
         const { navigate } = this.props.navigation;
+
+        const stylesSlider = StyleSheet.create({
+            image: {
+                width: 320,
+                height: 320,
+            }
+        });
+
+        const slides = [
+            {
+                key: 'intro-slide-0',
+                title: 'Welcome to Pact.',
+                text: 'The first two weeks of a new habit are the hardest.\n' +
+                'With Pact, you\'ll conquer those two weeks with the help of another human being: not a glorified to-do list app.',
+                //image: require('./assets/1.jpg'),
+                imageStyle: stylesSlider.image,
+                backgroundColor: '#59b2ab',
+            },
+            {
+                key: 'intro-slide-1',
+                title: 'What\'s going to happen',
+                text: 'After this slideshow, Pact will partner you with another person who wants to build a gym routine.',
+                //image: require('./assets/2.jpg'),
+                imageStyle: stylesSlider.image,
+                backgroundColor: '#385ea8',
+            },
+            {
+                key: 'intro-slide-2',
+                title: 'Success in pairs',
+                text: 'For two weeks, you and your anonymous partner will ensure that you both stick to your gym routines.',
+                //image: require('./assets/2.jpg'),
+                imageStyle: stylesSlider.image,
+                backgroundColor: '#2a6e4c',
+            },
+            {
+                key: 'intro-slide-3',
+                title: 'How it will work (1/3)',
+                text: 'You will decide on your first routine independently of your partner. Your partner will make a routine too.\n' +
+                'You\'ll both commit to at least one definite time per week to work out.',
+                //image: require('./assets/2.jpg'),
+                imageStyle: stylesSlider.image,
+                backgroundColor: '#358a5f',
+            },
+            {
+                key: 'intro-slide-4',
+                title: 'How it will work (2/3)',
+                text: 'Then, you\'ll go to the gym at your routine times, and you\'ll prove to your partner that you kept your routine by sending them a photo of the gym.',
+                //image: require('./assets/2.jpg'),
+                imageStyle: stylesSlider.image,
+                backgroundColor: '#778aab',
+            },
+            {
+                key: 'intro-slide-5',
+                title: 'How it will work (3/3)',
+                text: 'After checking your photo, your partner will verify that you went to the gym. Pact will award you another point in your routine streak and when your partner works out, you\'ll verify that they worked out too.',
+                //image: require('./assets/3.jpg'),
+                imageStyle: stylesSlider.image,
+                backgroundColor: '#27d3cf',
+            },
+            {
+                key: 'intro-slide-6',
+                title: 'Ready?',
+                text: 'The first two weeks are always the hardest.\n' +
+                'But this time you aren\'t alone.',
+                //image: require('./assets/3.jpg'),
+                imageStyle: stylesSlider.image,
+                backgroundColor: '#22bcb5',
+            }
+
+            //TODO: Add 'set up workout routine' screen that says 'if you want to change this later, you'll have to ask your partner'
+
+            //TODO: Add system message saying: 'to get things started, what do you want to do?'
+        ];
+
         return (
             <View style={styles.container}>
+                <Modal
+                    animationType="fade"
+                    transparent={false}
+                    visible={this.state.initialRoutineModalVisible}
+                    onRequestClose={() => { console.log("onRequestClose() called from within initial routine modal") }}
+                >
+                    <View style={{
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                    }}>
+                        <Text style={{fontWeight: 'bold', fontSize: 30}}>Your routine</Text>
+                        <Text style={{fontSize: 15}}>What times per week will you work out?</Text>
+                        <Text style={{fontSize: 50}}> </Text>
+                        <Image source={require('../resources/mocksegmentedcontrol.png')}/>
+                        <Text style={{fontSize: 25}}> </Text>
+                        <Text style={{fontSize: 15, textAlign: 'center'}}>Note: You may change this schedule in the future, but only by asking your partner to change your settings for you.</Text>
+                        <Text style={{fontSize: 225}}> </Text>
+                    </View>
+                    <ActionButton title={"Submit"} onPress={() => {
+                        this.hideInitialRoutineModal()
+                    }}>
+                    </ActionButton>
+                </Modal>
+
+                <Modal
+                    animationType="fade"
+                    transparent={false}
+                    visible={this.state.introModalVisible}
+                    onRequestClose={() => { console.log("onRequestClose() called from within intro modal") }}
+                >
+                    <AppIntroSlider
+                        slides={slides}
+                        onDone={() => { this.hideIntroModal() }}
+                    />
+                </Modal>
+
+
+
+
                 <Modal
                     animationType="slide"
                     transparent={false}
@@ -117,9 +242,9 @@ class ChatScreen extends React.Component {
                             // dbDict['userConversationKey'] = 'hello';
 
                             //this.itemsRef.push().set(dbDict);
-                            
 
-                            // Gets the parent key for the conversation entry we want
+
+                            // Retrieves parent key for the conversation entry we want
                             let conversationKey = "";
                             firebaseApp.database().ref('conversations/').orderByChild('conversationID').equalTo('hello').on("value", function(snapshot) {
                                 //console.log(snapshot.val());
@@ -131,8 +256,9 @@ class ChatScreen extends React.Component {
 
                             // Appends a new message to the conversation we are interested in
                             firebaseApp.database().ref('conversations/' + conversationKey + '/messages/').push().set({
-                                title: "message content",
-                                isApproved: false});
+                                title: this.state.textToSend,
+                                isApproved: false
+                            });
 
 
                             this.setTextModalVisible(!this.state.textModalVisible);
@@ -191,7 +317,7 @@ class ChatScreen extends React.Component {
                     </View>
                 </Modal>
                 <ListView dataSource={this.state.dataSource} renderRow={this._renderItem.bind(this)} style={styles.listview} enableEmptySections={true}/>
-                <ActionButton title={"Check In"} onPress={this._addItem.bind(this)} />
+                <ActionButton title={"Send a message"} onPress={this._addItem.bind(this)} />
             </View>
         )
     }
