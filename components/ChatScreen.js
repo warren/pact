@@ -131,6 +131,11 @@ class ChatScreen extends React.Component {
                 //this.state.messagesRef = firebaseApp.database().ref('conversations/' + potentialConversationKey + '/messages/');
                 //vimportant = firebaseApp.database().ref('conversations/' + potentialConversationKey + '/messages');
                 firebaseApp.database().ref('conversations/').child(potentialConversationKey).child('conversationMemberCount').set(1); // Set the conversation member count to 1 member
+
+                firebaseApp.database().ref('conversations/' + this.state.localConversationKey + '/messages/').push().set({
+                    content: 'Welcome to Pact! You\'re now connected to a chat room with your partner. Introduce yourselves and set your goals!',
+                    authorDisplayName: 'System',
+                });
             } else {
                 // Otherwise, a VERY unlikely event has happened and the app should exit. What happened is probably that the user
                 // lost connection after creating the new conversation, another new user who had previously lost connection reconnected
@@ -141,12 +146,6 @@ class ChatScreen extends React.Component {
                     "An unlikely fatal error has occurred. Please restart the app."
                 );
             }
-
-            // Add welcome message to new conversation
-            firebaseApp.database().ref('conversations/' + potentialConversationKey + '/messages/').push().set({
-                content: 'Welcome to Pact! To get the conversation started: Where are you from? What goal have you set for yourself and why?',
-                authorDisplayName: 'System',
-            });
         }
 
 
@@ -281,14 +280,12 @@ class ChatScreen extends React.Component {
             {
                 key: 'intro-slide-6',
                 title: 'Ready?',
-                text: 'The first two weeks are always the hardest.\n' +
+                text: 'The first two weeks are the hardest.\n' +
                 'But this time you aren\'t alone.',
                 //image: require('./assets/3.jpg'),
                 imageStyle: stylesSlider.image,
                 backgroundColor: '#22bcb5',
             }
-
-            //TODO: Add system message saying: 'to get things started, what do you want to do?'
         ];
 
         return (
@@ -306,7 +303,9 @@ class ChatScreen extends React.Component {
                         <Text style={{fontWeight: 'bold', fontSize: 30}}>Your routine</Text>
                         <Text style={{fontSize: 15}}>What times per week will you work out?</Text>
                         <Text style={{fontSize: 50}}> </Text>
-                        <Image source={require('../resources/mocksegmentedcontrol.png')}/>
+                        <TouchableOpacity onPress={() => {}} >
+                            <Image source={require('../resources/mocksegmentedcontrol.png')}/>
+                        </TouchableOpacity>
                         <Text style={{fontSize: 25}}> </Text>
                         <Text style={{fontSize: 15, textAlign: 'center'}}>Note: You may change this schedule in the future, but only by asking your partner to change your settings for you.</Text>
                         <Text style={{fontSize: 225}}> </Text>
@@ -348,7 +347,7 @@ class ChatScreen extends React.Component {
                             onChangeText = {(text) => this.setState({textToSend: text})}
                             {...this.props} // Inherit any props passed to it; e.g., multiline, numberOfLines below
                             editable = {true}
-                            maxLength = {40}
+                            maxLength = {200}
                             multiline = {true}
                             numberOfLines = {4}
                         />
