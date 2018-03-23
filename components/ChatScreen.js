@@ -416,18 +416,25 @@ class ChatScreen extends React.Component {
 
                             Expo.takeSnapshotAsync(this.refs["cameraViewRef"], {
                                 format: "png",
-                                quality: 0.1
+                                quality: 0.1,
+                                result: "base64"
                             }).then(
-                                uri => console.log("Image saved to", uri),
+                                uri => {
+                                    console.log("Image in base64 is:");
+                                    console.log(uri);
+
+                                    // Appends a new message to the conversation the user is in
+                                    firebaseApp.database().ref('conversations/' + this.state.localConversationKey + '/messages/').push().set({
+                                        content: uri,
+                                        pictureApproved: false,
+                                        authorDisplayName: this.state.userDisplayName,
+                                    });
+
+                                },
                                 error => console.error("Oops, snapshot failed", error)
+
                             );
 
-                            // Appends a new message to the conversation the user is in
-                            firebaseApp.database().ref('conversations/' + this.state.localConversationKey + '/messages/').push().set({
-                                content: 'Placeholder for picture direct link',
-                                pictureApproved: false,
-                                authorDisplayName: this.state.userDisplayName,
-                            });
 
                             this.setCameraModalVisible(!this.state.cameraModalVisible);
                         }}>
