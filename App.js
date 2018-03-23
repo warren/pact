@@ -6,6 +6,7 @@ import CalendarScreen from './components/CalendarScreen';
 import ChatScreen from './components/ChatScreen';
 import SettingsScreen from './components/SettingsScreen';
 
+console.disableYellowBox = false; // This suppresses the expo debug messages
 
 const App = TabNavigator({
     Chat: {screen: ChatScreen},

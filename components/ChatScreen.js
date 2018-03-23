@@ -386,7 +386,7 @@ class ChatScreen extends React.Component {
                     onRequestClose={() => { this.setCameraModalVisible(!this.state.cameraModalVisible) }}
                 >
                     <View style={{flex: 1}}>
-                        <Camera style={{flex: 1}} type={this.state.type}>
+                        <Camera style={{flex: 1}} ref={"cameraViewRef"} type={this.state.type}>
                             <View
                                 style={{
                                     backgroundColor: 'transparent',
@@ -413,6 +413,15 @@ class ChatScreen extends React.Component {
                         </Camera>
 
                         <ActionButton title={"Send"} onPress={() => {
+
+                            Expo.takeSnapshotAsync(this.refs["cameraViewRef"], {
+                                format: "png",
+                                quality: 0.1
+                            }).then(
+                                uri => console.log("Image saved to", uri),
+                                error => console.error("Oops, snapshot failed", error)
+                            );
+
                             // Appends a new message to the conversation the user is in
                             firebaseApp.database().ref('conversations/' + this.state.localConversationKey + '/messages/').push().set({
                                 content: 'Placeholder for picture direct link',
