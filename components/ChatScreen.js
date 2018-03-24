@@ -8,7 +8,7 @@ const ActionButton = require('./ActionButton');
 const ListItem = require('./ListItem');
 const styles = require('../styles.js');
 
-import { Camera, Permissions } from 'expo';
+import { Camera, Permissions, ImagePicker } from 'expo';
 
 // Initialize Firebase
 const firebaseConfig = {
@@ -30,7 +30,6 @@ class ChatScreen extends React.Component {
             introModalVisible: true,
             initialRoutineModalVisible: true,
             textModalVisible: false,
-            cameraModalVisible: false,
             textToSend: '',
             hasCameraPermission: null,
             type: Camera.Constants.Type.back,
@@ -168,10 +167,6 @@ class ChatScreen extends React.Component {
         this.setState({textModalVisible: visible});
     }
 
-    setCameraModalVisible(visible) {
-        this.setState({cameraModalVisible: visible});
-    }
-
     async componentWillMount() {
         const { status } = await Permissions.askAsync(Permissions.CAMERA);
         this.setState({ hasCameraPermission: status === 'granted' });
@@ -196,7 +191,7 @@ class ChatScreen extends React.Component {
 
         itemsRef.on('value', (snap) => {
             // get children as an array
-            var items = [];
+            let items = [];
             snap.child('conversations').child(this.state.localConversationKey).child('messages').forEach((child) => {
                 items.push({
                     content: child.val().content,
@@ -353,15 +348,6 @@ class ChatScreen extends React.Component {
                         />
 
                         <ActionButton title={"Submit"} onPress={() => {
-                            // Retrieves parent key for the conversation entry we want... I believe this is no longer necessary because it is stored in this.state.localConversationKey
-                            // let conversationKey = "";
-                            // firebaseApp.database().ref('conversations/').orderByChild('conversationID').equalTo('hello').on("value", function(snapshot) {
-                            //     snapshot.forEach(function(data) {
-                            //         console.log(data.key);
-                            //         conversationKey += data.key; // This action should only occur once because there are no other conversations with the given conversationID
-                            //     });
-                            // });
-
                             // Appends a new message to the conversation the user is in
                             firebaseApp.database().ref('conversations/' + this.state.localConversationKey + '/messages/').push().set({
                                 content: this.state.textToSend,
@@ -379,52 +365,6 @@ class ChatScreen extends React.Component {
                         </ActionButton>
                     </View>
                 </Modal>
-                <Modal
-                    animationType="slide"
-                    transparent={false}
-                    visible={this.state.cameraModalVisible}
-                    onRequestClose={() => { this.setCameraModalVisible(!this.state.cameraModalVisible) }}
-                >
-                    <View style={{flex: 1}}>
-                        <Camera style={{flex: 1}} type={this.state.type}>
-                            <View
-                                style={{
-                                    backgroundColor: 'transparent',
-                                    flexDirection: 'row',
-                                }}>
-                                <TouchableOpacity
-                                    style={{
-                                        alignSelf: 'flex-end',
-                                        alignItems: 'center',
-                                    }}
-                                    onPress={() => {
-                                        this.setState({
-                                            type: this.state.type === Camera.Constants.Type.back
-                                                ? Camera.Constants.Type.front
-                                                : Camera.Constants.Type.back,
-                                        });
-                                    }}>
-                                    <Text
-                                        style={{ fontSize: 20, fontWeight: 'bold', marginTop: 10, color: 'white' }}>
-                                        {' '}Flip Camera{' '}
-                                    </Text>
-                                </TouchableOpacity>
-                            </View>
-                        </Camera>
-
-                        <ActionButton title={"Send"} onPress={() => {
-                            // Appends a new message to the conversation the user is in
-                            firebaseApp.database().ref('conversations/' + this.state.localConversationKey + '/messages/').push().set({
-                                content: 'Placeholder for picture direct link',
-                                pictureApproved: false,
-                                authorDisplayName: this.state.userDisplayName,
-                            });
-
-                            this.setCameraModalVisible(!this.state.cameraModalVisible);
-                        }}>
-                        </ActionButton>
-                    </View>
-                </Modal>
                 <ListView dataSource={this.state.dataSource} renderRow={this._renderItem.bind(this)} style={styles.listview} enableEmptySections={true}/>
                 <ActionButton title={"Send a message"} onPress={this._addItem.bind(this)} />
             </View>
@@ -437,7 +377,32 @@ class ChatScreen extends React.Component {
             "You'd like to record some data...",
             [
                 {text: 'Text', onPress: () => this.setTextModalVisible(!this.state.textModalVisible)},
-                {text: 'Picture', onPress: () => this.setCameraModalVisible((!this.state.cameraModalVisible))},
+                {text: 'Picture', onPress: () => {
+                    ImagePicker.launchCameraAsync({
+                            mediaTypes: "Images",
+                            quality: 0.1,
+                            base64: true,
+                        }).then(
+                            data => {
+                                console.log("Camera closed!");
+                                if(data.cancelled) {
+                                    console.log("User didn't take a picture so I am returning");
+                                    return;
+                                }
+
+                                // Appends a new message to the conversation the user is in
+                                firebaseApp.database().ref('conversations/' + this.state.localConversationKey + '/messages/').push().set({
+                                    content: data.base64,
+                                    pictureApproved: false,
+                                    authorDisplayName: this.state.userDisplayName,
+                                });
+                            },
+                            error => console.error("There was an error taking a photo ", error)
+                    )
+                }
+
+
+                },
             ],
             { cancelable: true }
         )
@@ -445,16 +410,9 @@ class ChatScreen extends React.Component {
 
     _renderItem(item) {
         console.log(item); // TODO: Move the "if should render" logic out of ListItem.render() and into here
-        // if (item.authorID !== item.pairID &&
-        //     item.authorID !== item.userID &&
-        //     item.authorID !== '-1') /* ID of -1 is a system message, and is always shown */
-        // {
-        //     return null;
-        // } else {
             return(
                 <ListItem item={item} onPress= {() => {}}/>
             );
-        // }
     }
 }
 

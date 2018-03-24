@@ -9,6 +9,7 @@ import java.util.List;
 
 // Needed for `react-native link`
 // import com.facebook.react.ReactApplication;
+import com.RNFetchBlob.RNFetchBlobPackage;
 
 public class MainApplication extends MultiDexApplication {
 
@@ -19,7 +20,8 @@ public class MainApplication extends MultiDexApplication {
         // TODO: add cool native modules
 
         // Needed for `react-native link`
-        // new MainReactPackage()
+        // new MainReactPackage(),
+            new RNFetchBlobPackage()
     );
   }
 }

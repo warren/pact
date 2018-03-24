@@ -21,7 +21,6 @@
     "react-native-app-intro": "^1.1.5",
     "react-native-app-intro-slider": "^0.2.2",
     "react-native-calendars": "^1.14.2",
-    "react-native-camera": "^0.12.0",
     "react-native-prompt": "^1.0.0",
     "react-navigation": "^1.0.0-beta.21"
   }
