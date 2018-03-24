@@ -8,7 +8,7 @@ const ActionButton = require('./ActionButton');
 const ListItem = require('./ListItem');
 const styles = require('../styles.js');
 
-import { Camera, Permissions } from 'expo';
+import { Camera, Permissions, ImagePicker } from 'expo';
 
 // Initialize Firebase
 const firebaseConfig = {
@@ -453,7 +453,33 @@ class ChatScreen extends React.Component {
             "You'd like to record some data...",
             [
                 {text: 'Text', onPress: () => this.setTextModalVisible(!this.state.textModalVisible)},
-                {text: 'Picture', onPress: () => this.setCameraModalVisible((!this.state.cameraModalVisible))},
+                // {text: 'Picture', onPress: () => ImagePicker.launchCameraAsync()
+                {text: 'Picture', onPress: () => {
+                    ImagePicker.launchCameraAsync({
+                            mediaTypes: "Images",
+                            quality: 0.1,
+                            base64: true,
+                        }).then(
+                            data => {
+                                console.log("Camera closed!");
+                                if(data.cancelled) {
+                                    console.log("User didn't take a picture so I am returning");
+                                    return;
+                                }
+
+                                // Appends a new message to the conversation the user is in
+                                firebaseApp.database().ref('conversations/' + this.state.localConversationKey + '/messages/').push().set({
+                                    content: data.base64,
+                                    pictureApproved: false,
+                                    authorDisplayName: this.state.userDisplayName,
+                                });
+                            },
+                            error => console.error("There was an error taking a photo ", error)
+                    )
+                }
+
+
+                }, //onPress: () => this.setCameraModalVisible((!this.state.cameraModalVisible))},
             ],
             { cancelable: true }
         )
