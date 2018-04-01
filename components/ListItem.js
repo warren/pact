@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
-import ReactNative, { Alert } from 'react-native';
-const styles = require('../styles.js')
+import ReactNative, { Alert, Image } from 'react-native';
+const styles = require('../styles.js');
 const { View, TouchableHighlight, Text } = ReactNative;
 
 class ListItem extends Component {
@@ -31,6 +31,7 @@ class ListItem extends Component {
                         )
                     }}>
                         <View style={styles.li}>
+                            <Image style={{width: 100, height: 125, resizeMode: Image.resizeMode.contain, borderWidth: 1, borderColor: 'red'}} source={{uri: 'data:image/png;base64,' + this.props.item.content}}/>
                             <Text
                                 style={styles.liTextNotApproved}>{ this.props.item.authorDisplayName + ' checked in via photo.\nApproval status: ' + this.props.item.pictureApproved }</Text>
                         </View>
@@ -42,6 +43,7 @@ class ListItem extends Component {
                 return (
                     <TouchableHighlight onPress={this.props.onPress}>
                         <View style={styles.li}>
+                            <Image style={{width: 100, height: 125, resizeMode: Image.resizeMode.contain, borderWidth: 1, borderColor: 'red'}} source={{uri: 'data:image/png;base64,' + this.props.item.content}}/>
                             <Text
                                 style={styles.liTextNotApproved}>{ this.props.item.authorDisplayName + ' checked in via photo.\nApproval status: ' + this.props.item.pictureApproved }</Text>
                         </View>
