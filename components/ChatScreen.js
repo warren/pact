@@ -35,12 +35,14 @@ class ChatScreen extends React.Component {
             type: Camera.Constants.Type.back,
 
             demoMode: false,
-            userDisplayName: 'Warren',
+            userDisplayName: '',
             pairDisplayName: 'Jordan', // TODO: This is currently hardcoded
             userID: '111',
             pairID: '222',
 
             messagesRef: '', // This should be overwritten always.
+
+            userDisplayNameTooShortReminder: ' ',
         };
         this.itemsRef = firebaseApp.database().ref();
     }
@@ -57,19 +59,19 @@ class ChatScreen extends React.Component {
     }
 
     createNewUser() {
-        var vimportant;
+        // var vimportant;
         // TODO: If demomode: use hardcoded values
         //userSetupDict['notificationSchedule'] = "[’08:00’, null, null, ’14:00’, null, null, ’20:00’]";
 
         let userSetupDict = {};
-        userSetupDict['userID'] = String(this.getRandomInt(0, 100));
-        userSetupDict['userDisplayName'] = 'Demo User ' + userSetupDict['userID'];
+        userSetupDict['userID'] = String(this.getRandomInt(0, 1000000));
+        // userSetupDict['userDisplayName'] = 'Demo User ' + userSetupDict['userID']; // TODO: Get this from the user
         userSetupDict['longestStreak'] = '0';
         userSetupDict['currentStreak'] = '0';
         userSetupDict['notificationSchedule'] = "[null, null, null, null, null, null, null]";
 
         this.state.userID = userSetupDict['userID'];
-        this.state.userDisplayName = userSetupDict['userDisplayName'];
+        // this.state.userDisplayName = userSetupDict['userDisplayName'];
 
         // TODO: Set the conversation key as a state variable so it can be used later
 
@@ -303,11 +305,32 @@ class ChatScreen extends React.Component {
                         </TouchableOpacity>
                         <Text style={{fontSize: 25}}> </Text>
                         <Text style={{fontSize: 15, textAlign: 'center'}}>Note: You may change this schedule in the future, but only by asking your partner to change your settings for you.</Text>
-                        <Text style={{fontSize: 225}}> </Text>
+                        <Text style={{fontSize: 50}}> </Text>
+                        <Text style={{fontSize: 25}}>Lastly, what's your name?</Text>
+                        <TextInput
+                            // style={{width: 225, height: 40}}
+                            style={{padding: 10, width: 225}}
+                            textAlign={'center'}
+                            placeholder = {"Jeff"}
+                            autoFocus = {false}
+                            autoCapitalize = {"words"}
+                            onChangeText = {(name) => this.setState({userDisplayName: name})}
+                            {...this.props} // Inherit any props passed to it; e.g., multiline, numberOfLines below
+                            editable = {true}
+                            maxLength = {20}
+                            multiline = {false}
+                        />
+                        <Text style={{color: 'red'}}>{this.state.userDisplayNameTooShortReminder}</Text>
+                        <Text style={{fontSize: 150}}> </Text>
                     </View>
                     <ActionButton title={"Submit"} onPress={() => {
-                        this.createNewUser();
-                        this.hideInitialRoutineModal();
+                        if(this.state.userDisplayName === '') {
+                            this.setState({userDisplayNameTooShortReminder: "Don't forget to enter a name!"});
+                        }
+                        else {
+                            this.createNewUser();
+                            this.hideInitialRoutineModal();
+                        }
                     }}>
                     </ActionButton>
                 </Modal>
