@@ -1,2 +1,4 @@
 # Pact
-Fall 2017 class project for Spark! Innovation Ventures at Boston University. Pact is a mobile app that helps you get on a gym routine by leveraging natural social accountability.
+Pact is a mobile app that helps you get on a gym routine by leveraging natural social accountability.
+
+*Do you ever feel building healthy habits is too hard? When you’re alone, they can be. Pact is a mobile app that helps you build habits with others using social accountability. For example, instead of managing your own gym routine, Pact puts you in touch with someone who does it for you. In return, you help that person maintain their chosen habit. Even if you never meet in person, trading responsibility with another person invests you in their success as well as your own. Through exchanging two weeks of proof that you maintained your respective habits, Pact helps you conquer the first two weeks of building a habit.*
