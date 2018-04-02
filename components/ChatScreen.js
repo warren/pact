@@ -431,10 +431,24 @@ class ChatScreen extends React.Component {
         )
     }
 
+    onApprove(item) {
+        firebaseApp.database().ref('conversations/' + this.state.localConversationKey + '/messages/').push().set({
+            content: 'Hello',
+            authorDisplayName: 'Test',
+            pictureApproved: item.pictureApproved,
+            // TODO: Get the reference id for each message and use it to set the pictureApproved field to true
+        });
+    }
+
+    onDeny(item) {
+        // TODO
+    }
+
+
     _renderItem(item) {
         console.log(item); // TODO: Move the "if should render" logic out of ListItem.render() and into here
             return(
-                <ListItem item={item} onPress= {() => {}}/>
+                <ListItem item={item} onApprove={() => this.onApprove(item)} onPress= {() => {}}/>
             );
     }
 }

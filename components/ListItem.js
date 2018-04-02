@@ -25,7 +25,7 @@ class ListItem extends Component {
                             [
                                 {text: 'Cancel', onPress: () => {}},
                                 {text: 'No', onPress: () => console.log('No pressed')},
-                                {text: 'Yes', onPress: () => console.log('Yes pressed')}
+                                {text: 'Yes', onPress: () => this.props.onApprove()}
                             ],
                             { cancelable: true }
                         )
