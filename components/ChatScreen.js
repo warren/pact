@@ -416,7 +416,7 @@ class ChatScreen extends React.Component {
                                 // Appends a new message to the conversation the user is in
                                 firebaseApp.database().ref('conversations/' + this.state.localConversationKey + '/messages/').push().set({
                                     content: data.base64,
-                                    pictureApproved: false,
+                                    pictureApproved: 'waiting',
                                     authorDisplayName: this.state.userDisplayName,
                                 });
                             },
@@ -431,24 +431,23 @@ class ChatScreen extends React.Component {
         )
     }
 
-    onApprove(item) {
-        firebaseApp.database().ref('conversations/' + this.state.localConversationKey + '/messages/').push().set({
-            content: 'Hello',
-            authorDisplayName: 'Test',
-            pictureApproved: item.pictureApproved,
-            // TODO: Get the reference id for each message and use it to set the pictureApproved field to true
+    onApprove(tappedItem) {
+        firebaseApp.database().ref('conversations/' + this.state.localConversationKey + '/messages/' + tappedItem._key ).update({
+            pictureApproved: 'approved.',
         });
     }
 
-    onDeny(item) {
-        // TODO
+    onDeny(tappedItem) {
+        firebaseApp.database().ref('conversations/' + this.state.localConversationKey + '/messages/' + tappedItem._key ).update({
+            pictureApproved: 'denied.',
+        });
     }
 
 
     _renderItem(item) {
         console.log(item); // TODO: Move the "if should render" logic out of ListItem.render() and into here
             return(
-                <ListItem item={item} onApprove={() => this.onApprove(item)} onPress= {() => {}}/>
+                <ListItem item={item} onApprove={() => this.onApprove(item)} onDeny={() => this.onDeny(item)} onPress= {() => {}}/>
             );
     }
 }

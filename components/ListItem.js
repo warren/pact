@@ -24,7 +24,7 @@ class ListItem extends Component {
                             "Approve " + this.props.item.authorDisplayName + "'s check-in request?",
                             [
                                 {text: 'Cancel', onPress: () => {}},
-                                {text: 'No', onPress: () => console.log('No pressed')},
+                                {text: 'No', onPress: () => this.props.onDeny()},
                                 {text: 'Yes', onPress: () => this.props.onApprove()}
                             ],
                             { cancelable: true }

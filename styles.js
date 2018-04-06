@@ -32,6 +32,10 @@ var styles = StyleSheet.create({
         color: '#971111',
         fontSize: 16,
     },
+    liTextApproved: {
+        color: '#00970c',
+        fontSize: 16,
+    },
     navbar: {
         alignItems: 'center',
         backgroundColor: '#fff',
