@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, View, ListView, Alert, Modal, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import { Text, View, ListView, Alert, Modal, TextInput, TouchableOpacity, StyleSheet, Image, AsyncStorage } from 'react-native';
 
 import AppIntroSlider from 'react-native-app-intro-slider';
 
@@ -35,10 +35,8 @@ class ChatScreen extends React.Component {
             type: Camera.Constants.Type.back,
 
             demoMode: false,
-            userDisplayName: '',
-            pairDisplayName: 'Jordan', // TODO: This is currently hardcoded
-            userID: '111',
-            pairID: '222',
+            userDisplayName: 'Default userDisplayName',
+            userID: 'Default userID',
 
             messagesRef: '', // This should be overwritten always.
 
@@ -63,9 +61,9 @@ class ChatScreen extends React.Component {
         // TODO: If demomode: use hardcoded values
         //userSetupDict['notificationSchedule'] = "[’08:00’, null, null, ’14:00’, null, null, ’20:00’]";
 
-        let userSetupDict = {};
+        let userSetupDict = {}; // This is the dictionary object user to push the the "users/" ref when setting up a new user
         userSetupDict['userID'] = String(this.getRandomInt(0, 1000000));
-        // userSetupDict['userDisplayName'] = 'Demo User ' + userSetupDict['userID']; // TODO: Get this from the user
+        userSetupDict['userDisplayName'] = this.state.userDisplayName;
         userSetupDict['longestStreak'] = '0';
         userSetupDict['currentStreak'] = '0';
         userSetupDict['notificationSchedule'] = "[null, null, null, null, null, null, null]";
@@ -149,8 +147,18 @@ class ChatScreen extends React.Component {
             }
         }
 
-
-        firebaseApp.database().ref('users/').push().set(userSetupDict);
+        firebaseApp.database().ref('users/').push(userSetupDict).then(
+            (data) => {
+                AsyncStorage.setItem('userObjectKeyToken', data.key).then(
+                    () => {
+                        // Successfully stored user conversation key token!
+                    },
+                    () => {
+                        console.log("Error: Failed to store userObjectKeyToken to AsyncStorage");
+                    }
+                );
+            }
+        );
 
         console.log("Finished setting up new user!");
         //this.listenForItems(this.itemsRef);
@@ -285,6 +293,50 @@ class ChatScreen extends React.Component {
             }
         ];
 
+
+        // // If returning user, render this
+        // if(TOKENCONDITION) {
+        //     return RETURNING_USER_RENDER
+        // }
+
+
+        // TODO: Maybe show a 'connecting...' screen here so users don't see the intro slideshow while they wait for the returning user promise
+
+        // Check if a previous login token exists...
+        AsyncStorage.getItem('userObjectKeyToken').then(
+            (valueData) => {
+                console.log("Checking if a login token exists...");
+
+                if (valueData == null) {
+                    console.log("It was null! Continuing to normal user setup.");
+                }
+                else {
+                    console.log("It exists! Continuing to returning user setup.");
+
+                    this.state.initialRoutineModalVisible = false;
+                    this.state.introModalVisible = false;
+
+
+                    firebaseApp.database().ref('users/' + valueData).on('value',
+                        (userData) => {
+                            this.state.localConversationKey = userData.val().userConversationKey; // TODO: Wtf why does this not work
+                            this.state.userDisplayName = userData.val().userDisplayName;
+                            this.state.userID = userData.val().userID;
+                        }
+                    );
+                    
+                    // TODO: Write a case for when a login token exists on the device but not in the database
+
+                    // Streaks and schedule info would be pulled here if I end up using them
+
+                }
+
+            }
+        );
+
+
+
+        // If new user, render this
         return (
             <View style={styles.container}>
                 <Modal
@@ -324,7 +376,7 @@ class ChatScreen extends React.Component {
                         <Text style={{fontSize: 150}}> </Text>
                     </View>
                     <ActionButton title={"Submit"} onPress={() => {
-                        if(this.state.userDisplayName === '') {
+                        if( this.state.userDisplayName === 'Default userDisplayName' || this.state.userDisplayName === '') {
                             this.setState({userDisplayNameTooShortReminder: "Don't forget to enter a name!"});
                         }
                         else {
